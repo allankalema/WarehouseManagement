@@ -1,3 +1,13 @@
 <!-- templates/user/shop_dashboard.html -->
 <h1>Shop Dashboard</h1>
 <p>Welcome to the Shop Dashboard!</p>
+<a href="{% url 'user:logout' %}">Logout</a>
+
+!-- Update Profile Button -->
+<a href="{% url 'user:update_profile' %}">
+    <button type="button">Update Profile</button>
+</a>
+<!-- Change Password Button -->
+<a href="{% url 'user:change_password' %}">
+    <button type="button">Change Password</button>
+</a>

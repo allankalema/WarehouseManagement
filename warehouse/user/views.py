@@ -1,15 +1,19 @@
 # user/views.py
 import random
 import string
+from django.contrib.auth import logout
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegistrationForm
+from .forms import UserRegistrationForm, UserUpdateForm
 from .models import User, VerificationCode
 from .backends import RoleBasedBackend
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+
 
 def generate_verification_code(length=6):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
@@ -89,3 +93,45 @@ def store_manager_dashboard(request):
 @login_required
 def shop_dashboard(request):
     return render(request, 'user/shop_dashboard.html')
+
+
+@login_required
+def update_profile(request):
+    user = request.user
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('user:dashboard')  # Redirect to the user's main dashboard
+    else:
+        form = UserUpdateForm(instance=user)
+    return render(request, 'user/update_profile.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return redirect('user:login')
+
+
+@login_required
+def change_password_view(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Keep the user logged in after password change
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Your password was successfully updated.')
+
+            # Send email notification
+            send_mail(
+                'Password Change Notification',
+                'Your password was successfully changed.',
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )
+
+            return redirect('user:dashboard')  # Redirect to the dashboard after success
+    else:
+        form = PasswordChangeForm(user=request.user)
+    return render(request, 'user/change_password.html', {'form': form})

@@ -20,3 +20,10 @@ class UserRegistrationForm(UserCreationForm):
 
         if password != confirm_password:
             self.add_error('password2', "Passwords do not match.")
+
+
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email']

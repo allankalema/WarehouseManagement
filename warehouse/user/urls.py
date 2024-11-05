@@ -11,4 +11,7 @@ urlpatterns = [
     path('dashboard/', dashboard_view, name='dashboard'),
     path('store-manager-dashboard/', store_manager_dashboard, name='store_manager_dashboard'),
     path('shop-dashboard/', shop_dashboard, name='shop_dashboard'),
+    path('update-profile/', update_profile, name='update_profile'),
+    path('logout/', logout_view, name='logout'),
+    path('change-password/', change_password_view, name='change_password'),
 ]
