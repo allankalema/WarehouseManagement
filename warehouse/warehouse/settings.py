@@ -57,7 +57,7 @@ ROOT_URLCONF = 'warehouse.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # Add this path to use templates in the base directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -69,6 +69,12 @@ TEMPLATES = [
         },
     },
 ]
+
+# Static files configuration
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']  # Directory for static files in the base directory
+
+
 
 WSGI_APPLICATION = 'warehouse.wsgi.application'
 
