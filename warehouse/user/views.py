@@ -1,4 +1,3 @@
-# user/views.py
 import random
 import string
 from django.shortcuts import render, redirect
@@ -7,6 +6,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from .forms import UserRegistrationForm
 from .models import User, VerificationCode
+from django.contrib.auth.decorators import login_required
+
 
 def generate_verification_code(length=6):
     """Generates a random code of letters and numbers."""
@@ -17,7 +18,8 @@ def signup_view(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_owner = True
+            user.store_name = form.cleaned_data['store_name']  # Set the store name from form data
+            user.owner = True  # Set the user as an owner
             user.is_active = False  # Set inactive until verification
             user.save()
 
@@ -52,11 +54,22 @@ def verify_email_view(request, user_id):
             user.save()
             verification.delete()
 
+            # Send a confirmation email for successful account registration
+            send_mail(
+                'Account Registration Successful',
+                'Congratulations! Your account registration is complete.',
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                fail_silently=False,
+            )
+
+            messages.success(request, "Your account has been successfully verified.")
             return redirect('user:dashboard')  # Redirect to dashboard on success
         except VerificationCode.DoesNotExist:
             messages.error(request, "Verification code is incorrect.")
             return redirect('user:verify_email', user_id=user_id)
     return render(request, 'user/verify_email.html', {'user_id': user_id})
 
+@login_required
 def dashboard_view(request):
     return render(request, 'user/dashboard.html')
