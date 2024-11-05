@@ -1,0 +1,8 @@
+<!-- templates/user/verify_email.html -->
+<h2>Email Verification</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="code">Enter the code sent to your email:</label>
+    <input type="text" name="code" required>
+    <button type="submit">Verify</button>
+</form>
