@@ -1,16 +1,17 @@
+# user/views.py
 import random
 import string
 from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from .forms import UserRegistrationForm
 from .models import User, VerificationCode
-from django.contrib.auth.decorators import login_required
-
+from .backends import RoleBasedBackend
 
 def generate_verification_code(length=6):
-    """Generates a random code of letters and numbers."""
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 def signup_view(request):
@@ -18,16 +19,14 @@ def signup_view(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.store_name = form.cleaned_data['store_name']  # Set the store name from form data
-            user.owner = True  # Set the user as an owner
+            user.store_name = form.cleaned_data['storename']
+            user.owner = True
             user.is_active = False  # Set inactive until verification
             user.save()
 
-            # Generate and save the verification code
             code = generate_verification_code()
             VerificationCode.objects.create(user=user, code=code)
 
-            # Send verification code to user's email
             send_mail(
                 'Your Verification Code',
                 f'Your verification code is {code}',
@@ -35,8 +34,6 @@ def signup_view(request):
                 [user.email],
                 fail_silently=False,
             )
-
-            # Redirect to verification page
             return redirect('user:verify_email', user_id=user.id)
     else:
         form = UserRegistrationForm()
@@ -49,12 +46,10 @@ def verify_email_view(request, user_id):
             user = User.objects.get(id=user_id)
             verification = VerificationCode.objects.get(user=user, code=code)
 
-            # If code is valid, activate the user and delete the code
             user.is_active = True
             user.save()
             verification.delete()
 
-            # Send a confirmation email for successful account registration
             send_mail(
                 'Account Registration Successful',
                 'Congratulations! Your account registration is complete.',
@@ -63,13 +58,34 @@ def verify_email_view(request, user_id):
                 fail_silently=False,
             )
 
-            messages.success(request, "Your account has been successfully verified.")
-            return redirect('user:dashboard')  # Redirect to dashboard on success
+            login(request, user)
+            return redirect(RoleBasedBackend().get_user_dashboard(user))
         except VerificationCode.DoesNotExist:
             messages.error(request, "Verification code is incorrect.")
             return redirect('user:verify_email', user_id=user_id)
     return render(request, 'user/verify_email.html', {'user_id': user_id})
 
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect(RoleBasedBackend().get_user_dashboard(user))
+        else:
+            messages.error(request, "Invalid username or password.")
+    return render(request, 'user/login.html')
+
 @login_required
 def dashboard_view(request):
     return render(request, 'user/dashboard.html')
+
+@login_required
+def store_manager_dashboard(request):
+    return render(request, 'user/store_manager_dashboard.html')
+
+@login_required
+def shop_dashboard(request):
+    return render(request, 'user/shop_dashboard.html')

@@ -74,6 +74,12 @@ TEMPLATES = [
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']  # Directory for static files in the base directory
 
+# settings.py
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'user.backends.RoleBasedBackend',
+]
+LOGIN_URL = 'user:login'
 
 
 WSGI_APPLICATION = 'warehouse.wsgi.application'
