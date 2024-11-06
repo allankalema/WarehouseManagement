@@ -15,6 +15,8 @@ from .backends import RoleBasedBackend
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from .decorators import *
+from .backends import RoleBasedBackend
+
 from django.utils.crypto import get_random_string
 
 def generate_verification_code(length=6):
@@ -112,7 +114,7 @@ def update_profile(request):
             form.save()
             messages.success(request, 'Profile updated successfully.')
 
-            return redirect('user:dashboard')  # Redirect to the user's main dashboard
+            return redirect(RoleBasedBackend().get_user_dashboard(user))  # Redirect to the user's main dashboard
     else:
         form = UserUpdateForm(instance=user)
     return render(request, 'user/update_profile.html', {'form': form})
@@ -142,7 +144,7 @@ def change_password_view(request):
                 fail_silently=False,
             )
 
-            return redirect('user:dashboard')  # Redirect to the dashboard after success
+            return redirect(RoleBasedBackend().get_user_dashboard(user))  # Redirect to the dashboard after success
     else:
         form = PasswordChangeForm(user=request.user)
     return render(request, 'user/change_password.html', {'form': form})
