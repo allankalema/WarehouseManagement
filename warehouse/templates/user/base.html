@@ -24,18 +24,29 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <!-- Dashboard links for different user roles -->
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'user:dashboard' %}">OwnerDashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'user:shop_dashboard' %}">ShopDashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'user:store_manager_dashboard' %}">StorekeeperDashboard</a>
-                    </li>
-                </ul>
+               <!-- Dashboard links for different user roles -->
+<ul class="navbar-nav me-auto">
+    {% if user.is_authenticated %}
+        {% if user.owner %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'user:dashboard' %}">Owner Dashboard</a>
+            </li>
+        {% endif %}
+        
+        {% if user.store_manager %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'user:store_manager_dashboard' %}">Store Manager Dashboard</a>
+            </li>
+        {% endif %}
+        
+        {% if user.shop %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'user:shop_dashboard' %}">Shop Dashboard</a>
+            </li>
+        {% endif %}
+    {% endif %}
+</ul>
+
 
                 <!-- Notification and Profile dropdown menu -->
                 <ul class="navbar-nav ms-auto">
