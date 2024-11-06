@@ -1,6 +1,6 @@
 # products/views.py
 from django.shortcuts import render, redirect
-from .models import Product
+from .models import Product, Notification
 from .forms import *
 from user.decorators import *
 from django.contrib.auth.decorators import login_required
@@ -26,6 +26,8 @@ def product_create(request):
             product.user = request.user
             product.store_name = request.user.store_name  # Automatically fill store_name
             product.save()
+
+            create_product_notification(product)
 
             # Send email to the store owner and shops
             send_product_creation_email(product)
@@ -65,3 +67,31 @@ def send_product_creation_email(product):
 
 def home(request):
     return render(request, 'products/home.html')
+
+def create_product_notification(product):
+    """Creates notifications for the store owner and associated shop users."""
+    store_name = product.store_name
+    owner = product.user  # Store manager who created the product
+
+    # Create a notification for the store manager (owner)
+    Notification.objects.create(
+        user=owner,
+        message=f"New product '{product.name}' was added to your store '{store_name}'."
+    )
+
+    # Create notifications for shop users associated with this store
+    User = get_user_model()
+    shop_users = User.objects.filter(store_name=store_name).exclude(id=owner.id)
+    for shop_user in shop_users:
+        Notification.objects.create(
+            user=shop_user,
+            message=f"A new product '{product.name}' was added to '{store_name}'."
+        )
+
+
+@login_required
+def notifications_page(request):
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    # Optionally mark all notifications as seen after viewing
+    notifications.update(is_seen=True)
+    return render(request, 'products/notifications_page.html', {'notifications': notifications})
