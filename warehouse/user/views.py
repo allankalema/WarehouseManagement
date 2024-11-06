@@ -1,6 +1,7 @@
 # user/views.py
 import random
 import string
+from django.contrib import messages
 from django.contrib.auth import logout
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
@@ -38,6 +39,8 @@ def signup_view(request):
                 [user.email],
                 fail_silently=False,
             )
+            messages.success(request, 'Account created successfully! Please verify your email.')
+
             return redirect('user:verify_email', user_id=user.id)
     else:
         form = UserRegistrationForm()
@@ -63,6 +66,8 @@ def verify_email_view(request, user_id):
             )
 
             login(request, user)
+            messages.success(request, 'Your email has been verified successfully!')
+
             return redirect(RoleBasedBackend().get_user_dashboard(user))
         except VerificationCode.DoesNotExist:
             messages.error(request, "Verification code is incorrect.")
@@ -77,6 +82,8 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
+            messages.success(request, 'Logged in successfully.')
+
             return redirect(RoleBasedBackend().get_user_dashboard(user))
         else:
             messages.error(request, "Invalid username or password.")
@@ -102,6 +109,8 @@ def update_profile(request):
         form = UserUpdateForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Profile updated successfully.')
+
             return redirect('user:dashboard')  # Redirect to the user's main dashboard
     else:
         form = UserUpdateForm(instance=user)
@@ -109,6 +118,7 @@ def update_profile(request):
 
 def logout_view(request):
     logout(request)
+    messages.success(request, 'You have been logged out.')
     return redirect('user:login')
 
 
