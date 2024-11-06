@@ -9,4 +9,6 @@ handler403 = 'user.views.custom_403'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('user.urls')),
+    path('', include('products.urls')),
+
 ]
