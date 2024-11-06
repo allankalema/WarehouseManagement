@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
@@ -33,3 +34,15 @@ class Product(models.Model):
             self.boxes_left = self.boxes  # Initially set boxes_left to the value of boxes
             self.pieces_left = self.pieces_per_box * self.boxes  # pieces_left = pieces_per_box * boxes
         super().save(*args, **kwargs)
+
+
+User = get_user_model()
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    message = models.TextField()
+    is_seen = models.BooleanField(default=False)  # Mark as seen/unseen
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification for {self.user} - {'Seen' if self.is_seen else 'Unseen'}"
