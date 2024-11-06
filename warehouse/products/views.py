@@ -61,3 +61,7 @@ def send_product_creation_email(product):
             [shop_user.email],
             fail_silently=False,
         )
+
+
+def home(request):
+    return render(request, 'products/home.html')
