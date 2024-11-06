@@ -12,9 +12,9 @@ from django.contrib.auth import get_user_model
 
 @login_required
 def product_list(request):
-    products = Product.objects.all()  # Fetch all products
+    user_store_name = request.user.store_name  # Get the store_name of the logged-in user
+    products = Product.objects.filter(store_name=user_store_name)  # Fetch products only for this store
     return render(request, 'products/product_list.html', {'products': products})
-
 
 @store_manager_required
 def product_create(request):
