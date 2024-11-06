@@ -1,4 +1,3 @@
-<!-- templates/products/product_list.html -->
 {% extends 'user/base.html' %}
 
 {% block content %}
@@ -20,22 +19,44 @@
                     <p class="card-text">{{ product.description }}</p>
                     <p><strong>Manufactured Date:</strong> {{ product.manufactured_date }}</p>
                     <p><strong>Expiry Date:</strong> {{ product.expiry_date }}</p>
-                    <p><strong>Boxes Available:</strong> {{ product.boxes }}</p>
+                    <p><strong>Boxes Available:</strong> {{ product.boxes_left }}</p>
                     <p><strong>Pieces per Box:</strong> {{ product.pieces_per_box }}</p>
+                </div>
 
-                    {% if product.boxes_left == 0 %}
-                        <div class="alert alert-danger" role="alert">
+                <div class="card-footer d-flex justify-content-between align-items-end">
+                    <!-- Add to Cart button visible only to shop users -->
+                    {% if user.shop %}
+                    <a href="#" class="btn 
+                        {% if product.boxes_left == 0 %}
+                            btn-outline-success disabled
+                        {% else %}
+                            btn-primary
+                        {% endif %}">
+                        {% if product.boxes_left == 0 %}
                             Out of Stock
-                        </div>
-                    {% elif product.boxes_left <= 5 %}
-                        <div class="alert alert-warning" role="alert">
-                            Almost Out of Stock
-                        </div>
-                    {% else %}
-                        <div class="alert alert-success" role="alert">
-                            In Stock
-                        </div>
+                        {% else %}
+                            Add to Cart
+                        {% endif %}
+                    </a>
                     {% endif %}
+
+                    <!-- Status message positioned at the bottom-right of the card -->
+                    <span class="badge 
+                        {% if product.boxes_left == 0 %}
+                            bg-dark text-light
+                        {% elif product.boxes_left <= 5 %}
+                            bg-warning text-dark
+                        {% else %}
+                            bg-success text-light
+                        {% endif %}">
+                        {% if product.boxes_left == 0 %}
+                            Out of Stock
+                        {% elif product.boxes_left <= 5 %}
+                            Almost Out of Stock
+                        {% else %}
+                            In Stock
+                        {% endif %}
+                    </span>
                 </div>
             </div>
         </div>
