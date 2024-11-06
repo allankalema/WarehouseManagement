@@ -5,16 +5,22 @@
 {% block content %}
 
 <!-- templates/user/login.html -->
+
+<div class="container mt-4 d-flex justify-content-center">
+    <div class="card fancy-card mt-5 shadow-lg p-4 w-50 col-sm-12">
 <form method="post">
     {% csrf_token %}
-    <label>Username:</label><input type="text" name="username" required><br>
-    <label>Password:</label><input type="password" name="password" required><br>
-    <button type="submit">Login</button>
+    <h2 class="text-center text-dark">Login</h2><br>
+    <label>Username:</label><input type="text" class="form-control" name="username" required><br>
+    <label>Password:</label><input type="password" class="form-control" name="password" required><br>
+    <button type="submit" class="btn btn-primary">Login</button>
 </form>
 {% if messages %}
     {% for message in messages %}
         <p>{{ message }}</p>
     {% endfor %}
 {% endif %}
+</div>
+</div>
 
 {% endblock %}
