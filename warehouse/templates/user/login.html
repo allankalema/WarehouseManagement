@@ -1,3 +1,9 @@
+{% extends 'user/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
 <!-- templates/user/login.html -->
 <form method="post">
     {% csrf_token %}
@@ -10,3 +16,5 @@
         <p>{{ message }}</p>
     {% endfor %}
 {% endif %}
+
+{% endblock %}

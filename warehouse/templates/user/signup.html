@@ -1,7 +1,16 @@
+{% extends 'user/base.html' %}
+
+{% load static %}
+
+{% block content %}
 <!-- templates/user/signup.html -->
 <h2>Sign Up</h2>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
+
+    <!-- <label for="id_storename">Store Name</label>
+    <input type="text" name="store_name" id="id_store_name"> -->
     <button type="submit">Sign Up</button>
 </form>
+{% endblock %}

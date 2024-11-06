@@ -1,3 +1,8 @@
+{% extends 'user/base.html' %}
+
+{% load static %}
+
+{% block content %}
 <!-- templates/user/update_profile.html -->
 <h1>Update Profile</h1>
 <form method="post">
@@ -5,3 +10,5 @@
     {{ form.as_p }}
     <button type="submit">Update</button>
 </form>
+
+{% endblock %}

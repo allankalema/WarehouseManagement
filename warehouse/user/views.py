@@ -23,7 +23,7 @@ def signup_view(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.store_name = form.cleaned_data['storename']
+            user.store_name = form.cleaned_data['store_name']
             user.owner = True
             user.is_active = False  # Set inactive until verification
             user.save()

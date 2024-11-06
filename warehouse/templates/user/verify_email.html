@@ -1,3 +1,9 @@
+{% extends 'user/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
 <!-- templates/user/verify_email.html -->
 <h2>Email Verification</h2>
 <form method="post">
@@ -6,3 +12,5 @@
     <input type="text" name="code" required>
     <button type="submit">Verify</button>
 </form>
+
+{% endblock %}
