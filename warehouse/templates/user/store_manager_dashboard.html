@@ -7,16 +7,9 @@
 <!-- templates/user/store_manager_dashboard.html -->
 <h1>Store Manager Dashboard</h1>
 <p>Welcome to the Store Manager Dashboard!</p>
-<!-- <a href="{% url 'user:logout' %}">Logout</a> -->
 
-<!-- Update Profile Button -->
-<!-- <a href="{% url 'user:update_profile' %}">
-    <button type="button">Update Profile</button>
-</a> -->
-
-<!-- Change Password Button -->
-<!-- <a href="{% url 'user:change_password' %}">
-    <button type="button">Change Password</button>
-</a> -->
+<a href="{% url 'products:product_create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-circle-dotted"></i> Product
+</a>
 
 {% endblock %}

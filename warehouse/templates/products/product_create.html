@@ -1,0 +1,13 @@
+<!-- templates/products/product_create.html -->
+{% extends 'user/base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">Create a New Product</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Create Product</button>
+    </form>
+</div>
+{% endblock %}

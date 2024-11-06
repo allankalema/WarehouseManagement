@@ -1,18 +1,20 @@
-# products/models.py
 from django.db import models
-from django.conf import settings  # Import to reference the user model
+from django.conf import settings
+from django.utils import timezone
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     manufactured_date = models.DateField()
     expiry_date = models.DateField()
-    boxes = models.IntegerField()  # Moved this field to be before pieces_per_box
-    pieces_per_box = models.IntegerField()  # Moved this field to after boxes
-    pieces_left = models.IntegerField()  # Left unchanged
-    boxes_left = models.IntegerField(blank=True, null=True)  # Can be empty initially
-    section = models.CharField(max_length=255, blank=True, null=True)  # Added section field
+    boxes = models.IntegerField()  # Number of boxes when the product is created
+    pieces_per_box = models.IntegerField()  # Pieces per box
+    pieces_left = models.IntegerField()  # Pieces left in total
+    boxes_left = models.IntegerField(default=0)  # Boxes left in stock, set default to 0 to avoid null values
+    section = models.CharField(max_length=255, blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='products')
+    store_name = models.CharField(max_length=255, null=True)  # Store name field (store manager's store name)
+    created_at = models.DateTimeField(auto_now_add=True)  # Timestamp for when the product was created
 
     def __str__(self):
         return self.name
@@ -24,3 +26,10 @@ class Product(models.Model):
     def calculate_remaining_boxes(self):
         """Calculate the total remaining boxes (boxes_left)."""
         return self.boxes_left
+
+    def save(self, *args, **kwargs):
+        """Override the save method to auto-calculate `boxes_left` and `pieces_left`."""
+        if not self.pk:  # Only on creation, not update
+            self.boxes_left = self.boxes  # Initially set boxes_left to the value of boxes
+            self.pieces_left = self.pieces_per_box * self.boxes  # pieces_left = pieces_per_box * boxes
+        super().save(*args, **kwargs)
