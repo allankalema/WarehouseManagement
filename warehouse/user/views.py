@@ -14,6 +14,7 @@ from .models import User, VerificationCode
 from .backends import RoleBasedBackend
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
+from .decorators import *
 
 
 def generate_verification_code(length=6):
@@ -89,15 +90,15 @@ def login_view(request):
             messages.error(request, "Invalid username or password.")
     return render(request, 'user/login.html')
 
-@login_required
+@owner_required
 def dashboard_view(request):
     return render(request, 'user/dashboard.html')
 
-@login_required
+@store_manager_required
 def store_manager_dashboard(request):
     return render(request, 'user/store_manager_dashboard.html')
 
-@login_required
+@shop_required
 def shop_dashboard(request):
     return render(request, 'user/shop_dashboard.html')
 
@@ -145,3 +146,6 @@ def change_password_view(request):
     else:
         form = PasswordChangeForm(user=request.user)
     return render(request, 'user/change_password.html', {'form': form})
+
+def custom_403(request, exception=None):
+    return render(request, 'user/403.html', status=403)

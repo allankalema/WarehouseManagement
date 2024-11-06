@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 Forbidden</title>
+    <style>
+        /* Page styling */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            animation: fadeIn 1s ease;
+        }
+
+        /* Animated lock icon */
+        .lock-icon {
+            font-size: 60px;
+            color: #f44336;
+            margin-bottom: 20px;
+            animation: shake 0.5s infinite;
+        }
+
+        /* Keyframe animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .message {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .username {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .info {
+            font-size: 16px;
+            color: #777;
+        }
+
+        /* Button styling */
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            color: #fff;
+            background-color: #007bff;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .back-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Animated Lock Icon -->
+    <div class="lock-icon">&#128274;</div>
+
+    <!-- Message -->
+    <div class="message">
+        Dear <span class="username">{{ request.user.username }}</span>,<br>
+        you are trying to access a page that you are <strong>forbidden</strong> to view due to insufficient privileges.
+    </div>
+    
+    <div class="info">
+        Please operate within your assigned privileges. If you believe this is a mistake, contact the administrator.
+    </div>
+
+   <!-- templates/user/403.html -->
+   {% if user.is_authenticated %}
+   {% if user.owner %}
+       <li class="nav-item">
+           <a class="back-btn" href="{% url 'user:dashboard' %}">Go to Dashboard</a>
+       </li>
+   {% endif %}
+   
+   {% if user.store_manager %}
+       <li class="nav-item">
+           <a class="back-btn" href="{% url 'user:store_manager_dashboard' %}">Go to Dashboard</a>
+       </li>
+   {% endif %}
+   
+   {% if user.shop %}
+       <li class="nav-item">
+           <a class="back-btn" href="{% url 'user:shop_dashboard' %}" >Go to Dashboard</a>
+       </li>
+   {% endif %}
+{% endif %}
+
+</a>
+
+</div>
+
+</body>
+</html>
