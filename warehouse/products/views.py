@@ -43,8 +43,8 @@ def send_product_creation_email(product):
 
     # Send to the owner
     send_mail(
-        f"New Product Created: {product.name}",
-        f"A new product '{product.name}' was created in your store '{store_name}'.",
+        f"New Product Has been added to the ware house: {product.name}",
+        f"A new product '{product.name}' was added  to your store '{store_name}'.",
         settings.DEFAULT_FROM_EMAIL,
         [owner.email],
         fail_silently=False,
@@ -52,11 +52,11 @@ def send_product_creation_email(product):
 
     # Send to the shops (exclude store managers)
     User = get_user_model()  # Get the actual user model class
-    shop_users = User.objects.filter(store_name=store_name).exclude(storemanager=True)
+    shop_users = User.objects.filter(store_name=store_name).exclude(store_manager=True)
     for shop_user in shop_users:
         send_mail(
-            f"New Product Created: {product.name}",
-            f"A new product '{product.name}' was created in your store '{store_name}'.",
+            f"New Product Has been added  called : {product.name}",
+            f"A new product '{product.name}' was added  to your store '{store_name}'. You can go ahead and make orders ",
             settings.DEFAULT_FROM_EMAIL,
             [shop_user.email],
             fail_silently=False,
