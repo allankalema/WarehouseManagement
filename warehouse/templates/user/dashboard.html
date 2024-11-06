@@ -6,16 +6,11 @@
 <!-- templates/user/dashboard.html -->
 <h2>Welcome to Your  Ownwer Dashboard</h2>
 <p>Your signup and email verification were successful!</p>
-<!-- <a href="{% url 'user:logout' %}">Logout</a> -->
 
-<!-- Update Profile Button -->
-<!-- <a href="{% url 'user:update_profile' %}">
-    <button type="button">Update Profile</button>
-</a> -->
 
-<!-- Change Password Button -->
-<!-- <a href="{% url 'user:change_password' %}">
-    <button type="button">Change Password</button>
-</a> -->
+<!-- Add these buttons to the dashboard template -->
+<a href="{% url 'user:create_shop' %}" class="btn btn-outline-primary mt-3">Register Shop</a>
+<a href="{% url 'user:create_store_manager' %}" class="btn btn-outline-primary mt-3">Register Store Manager</a>
+
 
 {% endblock %}

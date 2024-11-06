@@ -14,4 +14,6 @@ urlpatterns = [
     path('update-profile/', update_profile, name='update_profile'),
     path('logout/', logout_view, name='logout'),
     path('change-password/', change_password_view, name='change_password'),
+    path('create-shop/', create_shop, name='create_shop'),
+    path('create-store-manager/', create_store_manager, name='create_store_manager'),
 ]

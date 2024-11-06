@@ -15,7 +15,7 @@ from .backends import RoleBasedBackend
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from .decorators import *
-
+from django.utils.crypto import get_random_string
 
 def generate_verification_code(length=6):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
@@ -149,3 +149,95 @@ def change_password_view(request):
 
 def custom_403(request, exception=None):
     return render(request, 'user/403.html', status=403)
+
+
+@login_required
+@owner_required
+def create_shop(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        password = get_random_string(length=8)  # Generate random password
+        username = email.split('@')[0]  # Create a username from email
+
+        # Create new shop user
+        shop_user = User.objects.create_user(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            store_name=request.user.store_name,
+            shop=True,
+            owner=False,
+            store_manager=False,
+            password=password
+        )
+
+        # Email shop user their credentials
+        send_mail(
+            'Shop Account Created',
+            f'Your account has been created:\nUsername: {username}\nPassword: {password}\nPlease log in and change your password.',
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+
+        # Notify the owner
+        send_mail(
+            'Shop Account Registered',
+            f'A new shop account has been created for {first_name} {last_name} (Email: {email}).',
+            settings.DEFAULT_FROM_EMAIL,
+            [request.user.email],
+            fail_silently=False,
+        )
+        messages.success(request, 'Shop has successfully been created and active the user should login to that email to get the credentials')
+        return redirect('user:dashboard')
+
+    return render(request, 'user/create_shop.html')
+
+
+@login_required
+@owner_required
+def create_store_manager(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        password = get_random_string(length=8)  # Generate random password
+        username = email.split('@')[0]  # Create a username from email
+
+        # Create new store manager user
+        manager_user = User.objects.create_user(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            store_name=request.user.store_name,
+            shop=False,
+            owner=False,
+            store_manager=True,
+            password=password
+        )
+
+        # Email store manager user their credentials
+        send_mail(
+            'Store Manager Account Created',
+            f'Your account has been created:\nUsername: {username}\nPassword: {password}\nPlease log in and change your password.',
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+
+        # Notify the owner
+        send_mail(
+            'Store Manager Account Registered',
+            f'A new store manager account has been created for {first_name} {last_name} (Email: {email}).',
+            settings.DEFAULT_FROM_EMAIL,
+            [request.user.email],
+            fail_silently=False,
+        )
+        messages.success(request, 'Store manager account successfully created and working. the user should login to that email to get the credentials')
+        return redirect('user:dashboard')
+
+    return render(request, 'user/create_store_manager.html')

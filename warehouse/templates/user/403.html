@@ -98,30 +98,18 @@
         Please operate within your assigned privileges. If you believe this is a mistake, contact the administrator.
     </div>
 
-   <!-- templates/user/403.html -->
-   {% if user.is_authenticated %}
-   {% if user.owner %}
-       <li class="nav-item">
-           <a class="back-btn" href="{% url 'user:dashboard' %}">Go to Dashboard</a>
-       </li>
-   {% endif %}
-   
-   {% if user.store_manager %}
-       <li class="nav-item">
-           <a class="back-btn" href="{% url 'user:store_manager_dashboard' %}">Go to Dashboard</a>
-       </li>
-   {% endif %}
-   
-   {% if user.shop %}
-       <li class="nav-item">
-           <a class="back-btn" href="{% url 'user:shop_dashboard' %}" >Go to Dashboard</a>
-       </li>
-   {% endif %}
-{% endif %}
-
-</a>
-
+    <!-- Conditionally render the correct dashboard link -->
+    {% if user.is_authenticated %}
+        {% if user.owner %}
+            <a href="{% url 'user:dashboard' %}" class="back-btn">Go to Dashboard</a>
+        {% elif user.store_manager %}
+            <a href="{% url 'user:store_manager_dashboard' %}" class="back-btn">Go to Dashboard</a>
+        {% elif user.shop %}
+            <a href="{% url 'user:shop_dashboard' %}" class="back-btn">Go to Dashboard</a>
+        {% endif %}
+    {% endif %}
 </div>
 
 </body>
 </html>
+
