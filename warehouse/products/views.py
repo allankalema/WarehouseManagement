@@ -133,3 +133,55 @@ def send_product_update_notification(product, old_boxes, new_boxes):
         for user in users_to_notify
     ]
     Notification.objects.bulk_create(notifications)
+@store_manager_required
+def product_delete(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.method == 'POST':  # Confirmation received
+        store_name = product.store_name
+        store_manager = request.user
+        product_name = product.name
+
+        # Delete the product
+        product.delete()
+        
+        # Send notifications to users in the same store
+        create_delete_notification(store_manager, product_name, store_name)
+
+        # Send email to store owners
+        send_deletion_email_to_owners(store_manager, product_name, store_name)
+
+        messages.success(request, f"The product '{product_name}' was successfully deleted.")
+        return redirect('products:product_list')
+
+    return render(request, 'products/product_delete_confirm.html', {'product': product})
+
+
+def create_delete_notification(store_manager, product_name, store_name):
+    """Create notifications for all users in the store about the deleted product."""
+    User = get_user_model()
+    users_in_store = User.objects.filter(store_name=store_name)
+
+    for user in users_in_store:
+        Notification.objects.create(
+            user=user,
+            message=(
+                f"The product '{product_name}' has been removed from '{store_name}' "
+                f"No more order for this will be viable.. thank you"
+            )
+        )
+
+
+def send_deletion_email_to_owners(store_manager, product_name, store_name):
+    """Send an email to store owners about the deleted product."""
+    User = get_user_model()
+    store_owners = User.objects.filter(store_name=store_name, owner=True)
+
+    subject = f"Product Removed from Warehouse: {product_name}"
+    message = (
+        f"The product '{product_name}' has been removed from the warehouse '{store_name}' "
+        f"by {store_manager.first_name} {store_manager.last_name} (Username: {store_manager.username})."
+    )
+
+    for owner in store_owners:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [owner.email], fail_silently=False)

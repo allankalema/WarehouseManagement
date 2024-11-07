@@ -10,4 +10,5 @@ urlpatterns = [
     path('', home, name='home'),
     path('notifications/',notifications_page, name='notifications_page'),
     path('update/<int:pk>/',product_update, name='product_update'),
+    path('delete/<int:pk>/', product_delete, name='product_delete'),
 ]
