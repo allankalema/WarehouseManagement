@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -45,29 +45,42 @@ def remove_from_cart(request, product_id):
 
 @shop_required
 def make_order(request):
+    # Get the user's cart items
     cart_items = Cart.objects.filter(user=request.user)
+    
     if not cart_items:
         messages.error(request, "Your cart is empty.")
         return redirect('orders:cart')
 
     with transaction.atomic():
+        # Create a new order
         order = Order.objects.create(user=request.user)
 
+        # Update each CartItem's boxes count based on the form data
         for item in cart_items:
             product = item.product
+            # Get the boxes count from the form data
+            boxes = request.POST.get(f'boxes_{product.id}')
+            if boxes is not None and boxes.isdigit():
+                item.boxes = int(boxes)  # Update the CartItem boxes count
+                item.save()
+            
+            # Create an OrderItem using the updated boxes count
             OrderItem.objects.create(
                 order=order,
                 product=product,
                 boxes=item.boxes,
-                pieces=item.boxes * product.pieces_per_box,
+                pieces=item.boxes * product.pieces_per_box
             )
+            
+            # Update the product's boxes_left count
             product.boxes_left -= item.boxes
             product.save()
 
-        # Clear the cart
+        # Clear the user's cart after the order is created
         cart_items.delete()
 
-        # Send notifications
+        # Notify store managers and the store owner
         store_name = request.user.store_name
         store_managers = User.objects.filter(
             store_name=store_name,
@@ -80,7 +93,7 @@ def make_order(request):
                 message=f"{request.user.first_name} {request.user.last_name} has made an order from {store_name}."
             )
 
-        # Send email to store owner
+        # Send email to the store owner if they exist
         owner = User.objects.filter(store_name=store_name, owner=True).first()
         if owner:
             send_mail(
@@ -90,5 +103,12 @@ def make_order(request):
                 [owner.email],
             )
 
+    # Success message and redirect
     messages.success(request, "Your order has been placed successfully.")
-    return redirect('orders:order_detail', pk=order.pk)
+    return redirect('orders:order_detail', order_id=order.pk)
+
+
+
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    return render(request, 'orders/order_detail.html', {'order': order})
