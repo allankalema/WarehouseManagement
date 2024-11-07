@@ -26,7 +26,7 @@
                 <div class="card-footer d-flex justify-content-between align-items-end">
                     <!-- Add to Cart button visible only to shop users -->
                     {% if user.shop %}
-                    <a href="#" class="btn 
+                    <a href="{% url 'orders:add_to_cart' product.id %}" class="btn 
                         {% if product.boxes_left == 0 %}
                             btn-outline-success disabled
                         {% else %}
@@ -61,7 +61,6 @@
                     <!-- Update button, visible only to store managers -->
                     {% if user.store_manager %}
                     <a href="{% url 'products:product_update' product.pk %}" class="btn btn-warning">
-                        
                         Update
                     </a>
                     <a href="{% url 'products:product_delete' product.pk %}" class="btn btn-danger">Delete</a>
