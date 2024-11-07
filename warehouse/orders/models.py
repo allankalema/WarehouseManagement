@@ -43,22 +43,13 @@ class Order(models.Model):
 
 # Cart model (temporary, where user selects products)
 class Cart(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='carts')
-    created_at = models.DateTimeField(auto_now_add=True)  # Timestamp when the cart was created
-    updated_at = models.DateTimeField(auto_now=True)  # Timestamp when the cart was last updated
-    status = models.CharField(max_length=20, default='pending', choices=[('pending', 'Pending'), ('completed', 'Completed'), ('abandoned', 'Abandoned')])
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null = True)
+    boxes = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Cart for {self.user.username} ({self.status})"
-
-    def total_price(self):
-        """Calculate the total price of the cart based on cart items."""
-        return sum(item.get_item_total() for item in self.cart_items.all())
-
-    def get_item_count(self):
-        """Get the total number of items in the cart."""
-        return self.cart_items.count()
-
+        return f"{self.user}'s cart - {self.product.name}"
 # CartItem model (individual product entries in a cart)
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_items')
