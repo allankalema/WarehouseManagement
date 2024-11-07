@@ -4,7 +4,7 @@ from .models import Product
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'description', 'manufactured_date', 'expiry_date', 'boxes', 'pieces_per_box', 'section']
+        fields = ['name', 'description', 'manufactured_date', 'expiry_date', 'boxes_left', 'pieces_per_box', 'section']
         widgets = {
             'manufactured_date': forms.DateInput(attrs={'type': 'date'}),
             'expiry_date': forms.DateInput(attrs={'type': 'date'}),

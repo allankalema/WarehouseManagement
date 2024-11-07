@@ -102,19 +102,26 @@ def notifications_page(request):
 @store_manager_required
 def product_update(request, pk):
     product = get_object_or_404(Product, pk=pk, store_name=request.user.store_name)  # Ensure product belongs to user's store
-    old_boxes_count = product.boxes  # Store the original number of boxes
+    old_boxes_count = product.boxes_left    # Store the original number of boxes
 
     if request.method == 'POST':
         form = ProductForm(request.POST, instance=product)
         if form.is_valid():
             product = form.save()
             
+            product.pieces_left = product.boxes_left * product.pieces_per_box
+
             # Check if boxes count has increased
-            if product.boxes > old_boxes_count:
-                send_product_update_notification(product, old_boxes_count, product.boxes)
+            if product.boxes_left  > old_boxes_count:
+                product.save()
+                send_product_update_notification(product, old_boxes_count, product.boxes_left )
+            else: 
+                product.save()
 
             messages.success(request, "Product updated successfully.")
+
             return redirect('products:product_list')
+
     else:
         form = ProductForm(instance=product)
 
@@ -133,6 +140,8 @@ def send_product_update_notification(product, old_boxes, new_boxes):
         for user in users_to_notify
     ]
     Notification.objects.bulk_create(notifications)
+
+
 @store_manager_required
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
