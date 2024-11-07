@@ -1,5 +1,5 @@
 # products/views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product, Notification
 from .forms import *
 from user.decorators import *
@@ -95,3 +95,41 @@ def notifications_page(request):
     # Optionally mark all notifications as seen after viewing
     notifications.update(is_seen=True)
     return render(request, 'products/notifications_page.html', {'notifications': notifications})
+
+
+
+
+@store_manager_required
+def product_update(request, pk):
+    product = get_object_or_404(Product, pk=pk, store_name=request.user.store_name)  # Ensure product belongs to user's store
+    old_boxes_count = product.boxes  # Store the original number of boxes
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            product = form.save()
+            
+            # Check if boxes count has increased
+            if product.boxes > old_boxes_count:
+                send_product_update_notification(product, old_boxes_count, product.boxes)
+
+            messages.success(request, "Product updated successfully.")
+            return redirect('products:product_list')
+    else:
+        form = ProductForm(instance=product)
+
+    return render(request, 'products/product_update.html', {'form': form, 'product': product})
+
+def send_product_update_notification(product, old_boxes, new_boxes):
+    message = (f"The product '{product.name}' has been restocked. "
+               f"more boxes have been added in to the store")
+    store_name = product.store_name
+    User = get_user_model()
+
+    # Notify all users of the same store
+    users_to_notify = User.objects.filter(store_name=store_name)
+    notifications = [
+        Notification(user=user, message=message)
+        for user in users_to_notify
+    ]
+    Notification.objects.bulk_create(notifications)
