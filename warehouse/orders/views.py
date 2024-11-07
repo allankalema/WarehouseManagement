@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from .models import Order, OrderItem, Cart
 from products.models import Product, Notification
 from user.models import User
+from django.conf import settings
 from user.decorators import *
 from django.db import transaction
 from django.core.mail import send_mail
@@ -118,8 +119,8 @@ def order_detail(request, order_id):
 @store_manager_required
 @login_required
 def store_orders_view(request):
-    # Get all orders where store_name matches the logged-in user's store_name
-    store_orders = Order.objects.filter(store_name=request.user.store_name)
+    # Get all orders with store_name matching the logged-in user's store_name and status 'pending'
+    store_orders = Order.objects.filter(store_name=request.user.store_name, status='pending')
     
     # Group orders by user
     orders_by_user = {}
@@ -131,3 +132,96 @@ def store_orders_view(request):
         'orders_by_user': orders_by_user,
     }
     return render(request, 'orders/store_orders.html', context)
+
+
+@store_manager_required
+def order_confirmation_and_rejection(request):
+    # Query all orders for the current store manager's store name
+    orders = Order.objects.filter(store_name=request.user.store_name)
+    
+    orders_by_user = {}
+    for order in orders:
+        if order.user not in orders_by_user:
+            orders_by_user[order.user] = []
+        orders_by_user[order.user].append(order)
+
+    if request.method == "POST":
+        order_id = request.POST.get('order_id')
+        action = request.POST.get('action')
+        order = get_object_or_404(Order, id=order_id)
+
+        if action == "approve":
+            # Change order status to approved
+            order.status = 'approved'
+            order.save()
+
+            # Send email to the user who placed the order
+            send_mail(
+                'Order Approved',
+                f'Your order {order.id} has been approved by the store manager.',
+                settings.DEFAULT_FROM_EMAIL,
+                [order.user.email]
+            )
+
+            # Create a notification for the user
+            Notification.objects.create(
+                user=order.user,
+                message=f'Your order {order.id} has been approved.',
+                is_seen=False,  # Changed from is_read to is_seen
+                  # Store manager who approved the order
+            )
+
+            # Send email to users with the same store_name and store_manager == True
+            store_managers = User.objects.filter(store_name=order.store_name, store_manager=True).exclude(id=order.user.id)
+            for manager in store_managers:
+                send_mail(
+                    'Order Approved Notification',
+                    f'Order {order.id} has been approved by the store manager.',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [manager.email]
+                )
+
+            # Update product stock (subtract boxes from boxes_left and update pieces_left)
+            for order_item in order.items.all():
+                product = order_item.product
+                product.boxes_left -= order_item.boxes
+                product.pieces_left = product.boxes_left * product.pieces_per_box
+                product.save()
+
+            messages.success(request, f'Order {order.id} has been approved successfully.')
+
+        elif action == "reject":
+            # Change order status to rejected
+            order.status = 'rejected'
+            order.save()
+
+            # Send email to the user who placed the order
+            send_mail(
+                'Order Rejected',
+                f'Your order {order.id} has been rejected by the store manager.',
+                settings.DEFAULT_FROM_EMAIL,
+                [order.user.email]
+            )
+
+            # Create a notification for the user
+            Notification.objects.create(
+                user=order.user,
+                message=f'Your order {order.id} has been rejected.',
+                is_seen=False,  # Changed from is_read to is_seen  # Store manager who rejected the order
+            )
+
+            # Send email to users with the same store_name and store_manager == True
+            store_managers = User.objects.filter(store_name=order.store_name, store_manager=True).exclude(id=order.user.id)
+            for manager in store_managers:
+                send_mail(
+                    'Order Rejected Notification',
+                    f'Order {order.id} has been rejected by the store manager.',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [manager.email]
+                )
+
+            messages.warning(request, f'Order {order.id} has been rejected.')
+
+        return redirect('orders:store_orders')
+
+    return render(request, 'orders/store_orders.html', {'orders_by_user': orders_by_user})

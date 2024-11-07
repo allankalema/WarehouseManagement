@@ -26,7 +26,12 @@
                                             <li>{{ item.product.name }} - {{ item.boxes }} boxes, {{ item.pieces }} pieces</li>
                                         {% endfor %}
                                     </ul>
-                                
+                                    <form method="POST" class="mt-2">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="order_id" value="{{ order.id }}">
+                                        <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+                                        <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                                    </form>
                                 </div>
                             </div>
                         </li>
