@@ -10,9 +10,10 @@ class OrderItemInline(admin.TabularInline):
 # Order admin with inline OrderItems
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'store_manager', 'status', 'date')
+    # Add store_name to the list_display
+    list_display = ('id', 'user', 'store_name', 'store_manager', 'status', 'date')
     list_filter = ('status', 'date', 'store_manager')
-    search_fields = ('user__username', 'store_manager__username')
+    search_fields = ('user__username', 'store_manager__username', 'store_name')  # Search by store_name as well
     inlines = [OrderItemInline]
 
 # Admin for OrderItem

@@ -53,8 +53,11 @@ def make_order(request):
         return redirect('orders:cart')
 
     with transaction.atomic():
-        # Create a new order
-        order = Order.objects.create(user=request.user)
+        # Get the store name from the user's profile
+        store_name = request.user.store_name
+
+        # Create a new order with the store name
+        order = Order.objects.create(user=request.user, store_name=store_name)
 
         # Update each CartItem's boxes count based on the form data
         for item in cart_items:
@@ -81,7 +84,6 @@ def make_order(request):
         cart_items.delete()
 
         # Notify store managers and the store owner
-        store_name = request.user.store_name
         store_managers = User.objects.filter(
             store_name=store_name,
             store_manager=True
@@ -106,7 +108,6 @@ def make_order(request):
     # Success message and redirect
     messages.success(request, "Your order has been placed successfully.")
     return redirect('orders:order_detail', order_id=order.pk)
-
 
 
 def order_detail(request, order_id):

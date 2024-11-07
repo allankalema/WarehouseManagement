@@ -25,6 +25,8 @@ class Order(models.Model):
         blank=True,
         related_name='managed_orders'
     )
+    store_name = models.CharField(max_length=255, null = True)
+    
     # Order status
     status = models.CharField(
         max_length=10,
