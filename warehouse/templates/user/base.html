@@ -41,10 +41,14 @@
                     {% endif %}
                     
                     {% if user.store_manager %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'user:store_manager_dashboard' %}">Store Manager Dashboard</a>
-                        </li>
-                    {% endif %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'orders:store_orders' %}">Store Orders</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'user:store_manager_dashboard' %}">Store Manager Dashboard</a>
+    </li>
+{% endif %}
+
                     
                     {% if user.shop %}
                         <li class="nav-item">

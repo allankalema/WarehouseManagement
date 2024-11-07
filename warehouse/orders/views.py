@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from .models import Order, OrderItem, Cart
 from products.models import Product, Notification
 from user.models import User
+from user.decorators import *
 from django.db import transaction
 from django.core.mail import send_mail
 from user.decorators import shop_required  # Assuming this is the decorator for shop users
@@ -113,3 +114,20 @@ def make_order(request):
 def order_detail(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     return render(request, 'orders/order_detail.html', {'order': order})
+
+@store_manager_required
+@login_required
+def store_orders_view(request):
+    # Get all orders where store_name matches the logged-in user's store_name
+    store_orders = Order.objects.filter(store_name=request.user.store_name)
+    
+    # Group orders by user
+    orders_by_user = {}
+    for order in store_orders:
+        user_orders = orders_by_user.setdefault(order.user, [])
+        user_orders.append(order)
+    
+    context = {
+        'orders_by_user': orders_by_user,
+    }
+    return render(request, 'orders/store_orders.html', context)
