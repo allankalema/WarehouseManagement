@@ -16,4 +16,8 @@ urlpatterns = [
     path('change-password/', change_password_view, name='change_password'),
     path('create-shop/', create_shop, name='create_shop'),
     path('create-store-manager/', create_store_manager, name='create_store_manager'),
+    path('shop/delete/<int:shop_id>/', delete_shop, name='delete_shop'),
+    path('shop/deactivate/<int:shop_id>/', deactivate_shop, name='deactivate_shop'),
+    path('user/delete/<int:user_id>/', delete_user, name='delete_user'),
+    path('user/deactivate/<int:user_id>/', deactivate_user, name='deactivate_user'),
 ]

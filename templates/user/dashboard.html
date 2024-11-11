@@ -1,16 +1,127 @@
 {% extends 'user/base.html' %}
+{% load static %}
 
 {% block content %}
-
-{% load static %}
-<!-- templates/user/dashboard.html -->
-<h2>Welcome to Your  Ownwer Dashboard</h2>
+<h2>Welcome to Your Owner Dashboard</h2>
 <p>Your signup and email verification were successful!</p>
 
-
-<!-- Add these buttons to the dashboard template -->
+<!-- Action Buttons -->
 <a href="{% url 'user:create_shop' %}" class="btn btn-outline-primary mt-3">Register Shop</a>
 <a href="{% url 'user:create_store_manager' %}" class="btn btn-outline-primary mt-3">Register Store Manager</a>
 
+<div class="container mt-4">
+    <!-- Statistics Graphs -->
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <canvas id="weeklyOrdersChart"></canvas>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <canvas id="monthlyOrdersChart"></canvas>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <canvas id="yearlyOrdersChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Shops Managed by Owner -->
+    <section class="mt-4">
+        <h3>Your Shops</h3>
+        <ul class="list-group">
+            {% for shop in shops %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ shop.name }}
+                    <span>
+                        <a href="#" class="btn btn-sm btn-info">View</a>
+                        <a href="#" class="btn btn-sm btn-warning">Deactivate</a>
+                        <a href="#" class="btn btn-sm btn-danger">Delete</a>
+                    </span>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-muted">You have no registered shops.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <!-- User and Store Manager Management -->
+    <section class="mt-4">
+        <h3>Manage Store Managers and Users</h3>
+        <ul class="list-group">
+            {% for user in store_managers %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ user.username }} (Store Manager)
+                    <span>
+                        <a href="{% url 'user:deactivate_user' user.id %}" class="btn btn-sm btn-warning">Deactivate</a>
+                        <a href="{% url 'user:delete_user' user.id %}" class="btn btn-sm btn-danger">Delete</a>
+                    </span>
+                </li>
+            {% endfor %}
+            {% for user in all_users %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ user.username }}
+                    <span>
+                        <a href="{% url 'user:deactivate_user' user.id %}" class="btn btn-sm btn-warning">Deactivate</a>
+                        <a href="{% url 'user:delete_user' user.id %}" class="btn btn-sm btn-danger">Delete</a>
+                    </span>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-muted">No users available for management.</li>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Weekly Orders Chart
+    var ctxWeekly = document.getElementById('weeklyOrdersChart').getContext('2d');
+    var weeklyOrdersChart = new Chart(ctxWeekly, {
+        type: 'bar',
+        data: {
+            labels: ['Last Week'],
+            datasets: [{
+                label: 'Weekly Orders',
+                data: [{{ weekly_orders }}],
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+    });
+
+    // Monthly Orders Chart
+    var ctxMonthly = document.getElementById('monthlyOrdersChart').getContext('2d');
+    var monthlyOrdersChart = new Chart(ctxMonthly, {
+        type: 'bar',
+        data: {
+            labels: ['Last Month'],
+            datasets: [{
+                label: 'Monthly Orders',
+                data: [{{ monthly_orders }}],
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+    });
+
+    // Yearly Orders Chart
+    var ctxYearly = document.getElementById('yearlyOrdersChart').getContext('2d');
+    var yearlyOrdersChart = new Chart(ctxYearly, {
+        type: 'bar',
+        data: {
+            labels: ['Last Year'],
+            datasets: [{
+                label: 'Yearly Orders',
+                data: [{{ yearly_orders }}],
+                backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: { scales: { y: { beginAtZero: true } } }
+    });
+</script>
 
 {% endblock %}

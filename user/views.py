@@ -7,7 +7,7 @@ from orders.models import Order
 from products.models import Product
 from django.contrib import messages
 from django.contrib.auth import logout
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -97,8 +97,67 @@ def login_view(request):
     return render(request, 'user/login.html')
 
 @owner_required
+@login_required
 def dashboard_view(request):
-    return render(request, 'user/dashboard.html')
+    # Filter orders by store_name matching the current user's store
+    store_orders = Order.objects.filter(store_name=request.user.store_name)
+
+    # Calculate time ranges
+    today = timezone.now().date()
+    start_of_week = today - timedelta(days=today.weekday())  # Beginning of the week
+    start_of_month = today.replace(day=1)  # Beginning of the month
+    start_of_year = today.replace(month=1, day=1)  # Beginning of the year
+
+    # Retrieve order statistics
+    weekly_orders = store_orders.filter(date__gte=start_of_week).count()
+    monthly_orders = store_orders.filter(date__gte=start_of_month).count()
+    yearly_orders = store_orders.filter(date__gte=start_of_year).count()
+
+    # Retrieve shops owned by this owner (assuming 'shop' field differentiates shops)
+    shops = User.objects.filter(store_name=request.user.store_name, shop=True)
+
+    # Retrieve store managers and users related to the current user's store
+    store_managers = User.objects.filter(store_manager=True, store_name=request.user.store_name)
+    all_users = User.objects.filter(store_name=request.user.store_name).exclude(id=request.user.id)
+
+    context = {
+        'weekly_orders': weekly_orders,
+        'monthly_orders': monthly_orders,
+        'yearly_orders': yearly_orders,
+        'shops': shops,
+        'store_managers': store_managers,
+        'all_users': all_users,
+    }
+    
+    return render(request, 'user/dashboard.html', context)
+
+
+@login_required
+def delete_shop(request, shop_id):
+    shop = get_object_or_404(User, id=shop_id)
+    shop.delete()
+    return redirect('user:dashboard')
+
+@login_required
+def deactivate_shop(request, shop_id):
+    shop = get_object_or_404(User, id=shop_id)
+    shop.is_active = False  # assuming Shop model has is_active field
+    shop.save()
+    return redirect('user:dashboard')
+
+@login_required
+def delete_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    user.delete()
+    return redirect('user:dashboard')
+
+@login_required
+def deactivate_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    user.is_active = False
+    user.save()
+    return redirect('user:dashboard')
+
 
 @store_manager_required
 def store_manager_dashboard(request):
