@@ -1,6 +1,10 @@
 # user/views.py
 import random
 import string
+from django.utils import timezone
+from datetime import timedelta
+from orders.models import Order
+from products.models import Product
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.shortcuts import render, redirect
@@ -98,7 +102,51 @@ def dashboard_view(request):
 
 @store_manager_required
 def store_manager_dashboard(request):
-    return render(request, 'user/store_manager_dashboard.html')
+    current_user = request.user
+    current_date = timezone.now()
+
+    # Order statistics for the current store
+    last_week = current_date - timedelta(days=7)
+    last_month = current_date - timedelta(days=30)
+    last_year = current_date - timedelta(days=365)
+    weekly_orders = Order.objects.filter(store_name=current_user.store_name, date__gte=last_week).count()
+    monthly_orders = Order.objects.filter(store_name=current_user.store_name, date__gte=last_month).count()
+    yearly_orders = Order.objects.filter(store_name=current_user.store_name, date__gte=last_year).count()
+
+    # Stock levels for the current store
+    out_of_stock_products = Product.objects.filter(store_name=current_user.store_name, boxes_left__lt=3)
+    in_stock_products = Product.objects.filter(store_name=current_user.store_name, boxes_left__gte=10)
+    expiring_products = Product.objects.filter(
+        store_name=current_user.store_name, 
+        expiry_date__range=[current_date, current_date + timedelta(days=180)]
+    )
+
+    # Orders by status for the current store
+    pending_orders = Order.objects.filter(store_name=current_user.store_name, status='pending').count()
+    approved_orders = Order.objects.filter(store_name=current_user.store_name, status='approved').count()
+    rejected_orders = Order.objects.filter(store_name=current_user.store_name, status='rejected').count()
+
+    # Shops managed by the current store manager
+    managed_shops = User.objects.filter(store_name=current_user.store_name, shop=True).count()
+    shop_orders = Order.objects.filter(user__store_name=current_user.store_name, user__shop=True)
+
+    context = {
+        'weekly_orders': weekly_orders,
+        'monthly_orders': monthly_orders,
+        'yearly_orders': yearly_orders,
+        'out_of_stock_products': out_of_stock_products,
+        'in_stock_products': in_stock_products,
+        'expiring_products': expiring_products,
+        'pending_orders': pending_orders,
+        'approved_orders': approved_orders,
+        'rejected_orders': rejected_orders,
+        'managed_shops': managed_shops,
+        'shop_orders': shop_orders,
+    }
+
+    return render(request, 'user/store_manager_dashboard.html', context)
+
+
 
 @shop_required
 def shop_dashboard(request):

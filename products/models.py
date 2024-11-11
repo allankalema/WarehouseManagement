@@ -1,8 +1,11 @@
 from django.db import models
 from django.conf import settings
-from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.mail import send_mail
 
+# Define the Product model
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -17,8 +20,6 @@ class Product(models.Model):
     store_name = models.CharField(max_length=255, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-
-    
     def __str__(self):
         return self.name
 
@@ -35,6 +36,45 @@ class Product(models.Model):
             self.boxes_left = self.boxes or 0  # Ensure boxes_left is a non-None integer
             self.pieces_left = (self.pieces_per_box or 0) * self.boxes  # Ensure pieces_left is calculated correctly
         super().save(*args, **kwargs)
+
+
+# Define the signal receiver function outside the Product model class
+@receiver(post_save, sender=Product)
+def check_low_stock(sender, instance, **kwargs):
+    # Check if boxes_left is 2 or below
+    if instance.boxes_left <= 2:
+        # Get the User model
+        User = get_user_model()
+
+        # Find users with matching store_name and owner or store_manager role
+        users_to_notify = User.objects.filter(
+            store_name=instance.store_name,
+            owner=True,
+            store_manager=True
+        )
+
+        # Notify and email each user
+        for user in users_to_notify:
+            # Create notification
+            Notification.objects.create(
+                user=user,
+                message=f"Product '{instance.name}' is low on stock (Boxes Left: {instance.boxes_left})."
+            )
+
+            # Send email alert
+            send_mail(
+                subject="Low Stock Alert",
+                message=(
+                    f"Dear {user.first_name},\n\n"
+                    f"The product '{instance.name}' in your store '{instance.store_name}' "
+                    f"is low on stock with only {instance.boxes_left} boxes left.\n"
+                    "Please restock soon.\n\nBest,\nInventory System"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+
 
 User = get_user_model()
 
