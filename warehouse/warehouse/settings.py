@@ -83,6 +83,10 @@ AUTHENTICATION_BACKENDS = [
 ]
 LOGIN_URL = 'user:login'
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
 
 WSGI_APPLICATION = 'warehouse.wsgi.application'
 
@@ -96,6 +100,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 
 # Password validation
