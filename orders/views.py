@@ -78,10 +78,6 @@ def make_order(request):
                 pieces=item.boxes * product.pieces_per_box
             )
             
-            # Update the product's boxes_left count
-            product.boxes_left -= item.boxes
-            product.save()
-
         # Clear the user's cart after the order is created
         cart_items.delete()
 
@@ -167,11 +163,10 @@ def order_confirmation_and_rejection(request):
             Notification.objects.create(
                 user=order.user,
                 message=f'Your order {order.id} has been approved.',
-                is_seen=False,  # Changed from is_read to is_seen
-                  # Store manager who approved the order
+                is_seen=False,
             )
 
-            # Send email to users with the same store_name and store_manager == True
+            # Send email to other store managers with the same store name
             store_managers = User.objects.filter(store_name=order.store_name, store_manager=True).exclude(id=order.user.id)
             for manager in store_managers:
                 send_mail(
@@ -181,7 +176,7 @@ def order_confirmation_and_rejection(request):
                     [manager.email]
                 )
 
-            # Update product stock (subtract boxes from boxes_left and update pieces_left)
+            # Update product stock based on each item in the order
             for order_item in order.items.all():
                 product = order_item.product
                 product.boxes_left -= order_item.boxes
@@ -207,10 +202,10 @@ def order_confirmation_and_rejection(request):
             Notification.objects.create(
                 user=order.user,
                 message=f'Your order {order.id} has been rejected.',
-                is_seen=False,  # Changed from is_read to is_seen  # Store manager who rejected the order
+                is_seen=False,
             )
 
-            # Send email to users with the same store_name and store_manager == True
+            # Send email to other store managers with the same store name
             store_managers = User.objects.filter(store_name=order.store_name, store_manager=True).exclude(id=order.user.id)
             for manager in store_managers:
                 send_mail(
