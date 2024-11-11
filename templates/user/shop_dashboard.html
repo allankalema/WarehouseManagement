@@ -103,7 +103,6 @@
                 {% for order in pending_orders %}
                     <li class="order-item animate-slide">
                         <p>Order ID: {{ order.id }}</p>
-                        <p>Total: {{ order.total_price|floatformat:2 }}</p>
                         <p>Placed on: {{ order.date }}</p>
                     </li>
                 {% endfor %}
@@ -121,7 +120,7 @@
                 {% for order in approved_orders %}
                     <li class="order-item animate-fade">
                         <p>Order ID: {{ order.id }}</p>
-                        <p>Total: {{ order.total_price|floatformat:2 }}</p>
+                      
                         <p>Placed on: {{ order.date }}</p>
                     </li>
                 {% endfor %}
@@ -139,7 +138,7 @@
                 {% for order in rejected_orders %}
                     <li class="order-item animate-bounce">
                         <p>Order ID: {{ order.id }}</p>
-                        <p>Total: {{ order.total_price|floatformat:2 }}</p>
+                       
                         <p>Placed on: {{ order.date }}</p>
                     </li>
                 {% endfor %}
