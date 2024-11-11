@@ -209,7 +209,17 @@ def store_manager_dashboard(request):
 
 @shop_required
 def shop_dashboard(request):
-    return render(request, 'user/shop_dashboard.html')
+    user_orders = Order.objects.filter(user=request.user)
+    pending_orders = user_orders.filter(status='pending')
+    approved_orders = user_orders.filter(status='approved')
+    rejected_orders = user_orders.filter(status='rejected')
+
+    context = {
+        'pending_orders': pending_orders,
+        'approved_orders': approved_orders,
+        'rejected_orders': rejected_orders,
+    }
+    return render(request, 'user/shop_dashboard.html', context)
 
 
 @login_required

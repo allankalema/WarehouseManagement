@@ -4,18 +4,150 @@
 
 {% block content %}
 
-<!-- templates/user/shop_dashboard.html -->
-<h1>Shop Dashboard</h1>
-<p>Welcome to the Shop Dashboard!</p>
-<!-- <a href="{% url 'user:logout' %}">Logout</a> -->
+<style>
+    /* shop_dashboard.css */
 
-<!-- Update Profile Button -->
-<!-- <a href="{% url 'user:update_profile' %}">
-    <button type="button">Update Profile</button>
-</a> -->
-<!-- Change Password Button -->
-<!-- <a href="{% url 'user:change_password' %}">
-    <button type="button">Change Password</button>
-</a> -->
+    .dashboard-container {
+        width: 80%;
+        margin: 0 auto;
+    }
+
+    .order-section {
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .pending-orders {
+        background-color: #fef3c7;
+        color: #b45309;
+    }
+
+    .approved-orders {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .rejected-orders {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .order-item {
+        list-style-type: none;
+        margin: 10px 0;
+        padding: 10px;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        transition: transform 0.3s;
+    }
+
+    .order-item:hover {
+        transform: scale(1.02);
+    }
+
+    /* Animations */
+    .animate-slide {
+        animation: slideIn 0.5s ease forwards;
+    }
+
+    .animate-fade {
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    .animate-bounce {
+        animation: bounce 0.5s ease forwards;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <h1>Shop Dashboard</h1>
+    <p>Welcome to your Shop Dashboard!</p>
+
+    <!-- Pending Orders -->
+    <div class="order-section pending-orders">
+        <h2>Pending Orders</h2>
+        {% if pending_orders %}
+            <ul>
+                {% for order in pending_orders %}
+                    <li class="order-item animate-slide">
+                        <p>Order ID: {{ order.id }}</p>
+                        <p>Total: {{ order.total_price|floatformat:2 }}</p>
+                        <p>Placed on: {{ order.date }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No pending orders.</p>
+        {% endif %}
+    </div>
+
+    <!-- Approved Orders -->
+    <div class="order-section approved-orders">
+        <h2>Approved Orders</h2>
+        {% if approved_orders %}
+            <ul>
+                {% for order in approved_orders %}
+                    <li class="order-item animate-fade">
+                        <p>Order ID: {{ order.id }}</p>
+                        <p>Total: {{ order.total_price|floatformat:2 }}</p>
+                        <p>Placed on: {{ order.date }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No approved orders.</p>
+        {% endif %}
+    </div>
+
+    <!-- Rejected Orders -->
+    <div class="order-section rejected-orders">
+        <h2>Rejected Orders</h2>
+        {% if rejected_orders %}
+            <ul>
+                {% for order in rejected_orders %}
+                    <li class="order-item animate-bounce">
+                        <p>Order ID: {{ order.id }}</p>
+                        <p>Total: {{ order.total_price|floatformat:2 }}</p>
+                        <p>Placed on: {{ order.date }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No rejected orders.</p>
+        {% endif %}
+    </div>
+</div>
 
 {% endblock %}
