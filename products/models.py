@@ -8,15 +8,17 @@ class Product(models.Model):
     description = models.TextField()
     manufactured_date = models.DateField()
     expiry_date = models.DateField()
-    boxes = models.IntegerField()  # Number of boxes when the product is created
-    pieces_per_box = models.IntegerField()  # Pieces per box
+    boxes = models.IntegerField(default=0)  # Number of boxes when the product is created
+    pieces_per_box = models.IntegerField(default=0)  # Pieces per box, default to 0 to avoid None
     pieces_left = models.IntegerField()  # Pieces left in total
     boxes_left = models.IntegerField(default=0)  # Boxes left in stock, set default to 0 to avoid null values
     section = models.CharField(max_length=255, blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='products')
-    store_name = models.CharField(max_length=255, null=True)  # Store name field (store manager's store name)
-    created_at = models.DateTimeField(auto_now_add=True)  # Timestamp for when the product was created
+    store_name = models.CharField(max_length=255, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
+
+    
     def __str__(self):
         return self.name
 
@@ -29,12 +31,10 @@ class Product(models.Model):
         return self.boxes_left
 
     def save(self, *args, **kwargs):
-        """Override the save method to auto-calculate `boxes_left` and `pieces_left`."""
         if not self.pk:  # Only on creation, not update
-            self.boxes_left = self.boxes  # Initially set boxes_left to the value of boxes
-            self.pieces_left = self.pieces_per_box * self.boxes  # pieces_left = pieces_per_box * boxes
+            self.boxes_left = self.boxes or 0  # Ensure boxes_left is a non-None integer
+            self.pieces_left = (self.pieces_per_box or 0) * self.boxes  # Ensure pieces_left is calculated correctly
         super().save(*args, **kwargs)
-
 
 User = get_user_model()
 

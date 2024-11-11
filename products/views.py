@@ -19,7 +19,7 @@ def product_list(request):
 @store_manager_required
 def product_create(request):
     if request.method == 'POST':
-        form = ProductForm(request.POST)
+        form = CreateProductForm(request.POST)
         if form.is_valid():
             # Save product with auto-filled fields
             product = form.save(commit=False)
@@ -35,7 +35,7 @@ def product_create(request):
             messages.success(request, "Product created successfully.")
             return redirect('products:product_list')
     else:
-        form = ProductForm()
+        form = CreateProductForm()
 
     return render(request, 'products/product_create.html', {'form': form})
 
