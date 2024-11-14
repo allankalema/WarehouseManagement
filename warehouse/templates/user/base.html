@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     {% load static %}
     <meta charset="UTF-8">
@@ -8,18 +9,21 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <!-- Bootstrap CSS (or other CSS framework) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
 
 </head>
+
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-primary bg-info">
+    <nav class="navbar navbar-expand-lg navbar-primary bg-info navbar-sticky">
         <div class="container">
             <a class="navbar-brand" href="{% url 'user:dashboard' %}">Warehouse Management</a>
 
             <!-- Toggle button for mobile view -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -44,7 +48,8 @@
                         <a class="nav-link position-relative" href="#">
                             <i class="bi bi-bell"></i>
                             <!-- Badge for unread notifications -->
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                 3 <!-- Replace with dynamic count of unread notifications -->
                                 <span class="visually-hidden">unread notifications</span>
                             </span>
@@ -53,18 +58,22 @@
 
                     <!-- Profile dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-person-circle"></i> Profile
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                             {% if user.is_authenticated %}
-                                <li><a class="dropdown-item" href="{% url 'user:update_profile' %}">Update Profile</a></li>
-                                <li><a class="dropdown-item" href="{% url 'user:change_password' %}">Change Password</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'user:logout' %}">Logout</a></li>
+                            <li><a class="dropdown-item" href="{% url 'user:update_profile' %}">Update Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'user:change_password' %}">Change Password</a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'user:logout' %}">Logout</a></li>
                             {% else %}
-                                <li><a class="dropdown-item" href="{% url 'user:login' %}">Login</a></li>
-                                <li><a class="dropdown-item" href="{% url 'user:signup' %}">Sign Up</a></li>
+                            <li><a class="dropdown-item" href="{% url 'user:login' %}">Login</a></li>
+                            <li><a class="dropdown-item" href="{% url 'user:signup' %}">Sign Up</a></li>
                             {% endif %}
                         </ul>
                     </li>
@@ -74,13 +83,28 @@
     </nav>
 
     <!-- Content Section -->
-    <div class="container mt-4">
+    <div class="container mt-3 d-flex justify-content-center">
         {% block content %}
         <!-- Page-specific content will go here -->
         {% endblock content %}
     </div>
 
+    <!-- Display any messages -->
+    {% if messages %}
+    <div class="mb-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i
+                    class="bi bi-x-lg"></i></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
     <!-- Bootstrap JS (for dropdown and navbar collapse) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
