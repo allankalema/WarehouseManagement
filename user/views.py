@@ -72,7 +72,7 @@ def verify_email_view(request, user_id):
                 fail_silently=False,
             )
 
-            login(request, user)
+            login(request, user, backend="user.backends.RoleBasedBackend")
             messages.success(request, 'Your email has been verified successfully!')
 
             return redirect(RoleBasedBackend().get_user_dashboard(user))
@@ -113,8 +113,8 @@ def dashboard_view(request):
     monthly_orders = store_orders.filter(date__gte=start_of_month).count()
     yearly_orders = store_orders.filter(date__gte=start_of_year).count()
 
-    # Retrieve shops owned by this owner (assuming 'shop' field differentiates shops)
-    shops = User.objects.filter(store_name=request.user.store_name, shop=True)
+    # Retrieve only shops owned by this owner with the same store name and `shop=True`
+    shops = User.objects.filter(store_name=request.user.store_name, shop=True).exclude(id=request.user.id)
 
     # Retrieve store managers and users related to the current user's store
     store_managers = User.objects.filter(store_manager=True, store_name=request.user.store_name)
