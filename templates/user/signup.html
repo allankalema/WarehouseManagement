@@ -1,16 +1,61 @@
 {% extends 'user/base.html' %}
-
 {% load static %}
 
 {% block content %}
 <!-- templates/user/signup.html -->
-<h2>Sign Up</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
+<div class="signup-container">
+    <h2>Sign Up</h2>
+    <form method="post" class="signup-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="signup-button">Sign Up</button>
+    </form>
+</div>
 
-    <!-- <label for="id_storename">Store Name</label>
-    <input type="text" name="store_name" id="id_store_name"> -->
-    <button type="submit">Sign Up</button>
-</form>
+<style>
+    /* Container styling */
+    .signup-container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    /* Form title */
+    .signup-container h2 {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 20px;
+    }
+    /* Form inputs */
+    .signup-form input[type="text"],
+    .signup-form input[type="password"],
+    .signup-form input[type="email"],
+    .signup-form select {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    /* Sign Up button styling */
+    .signup-button {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    /* Button hover effect */
+    .signup-button:hover {
+        background-color: #0056b3;
+    }
+</style>
 {% endblock %}
