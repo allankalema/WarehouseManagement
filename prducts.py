@@ -5,10 +5,10 @@ import random
 import os
 
 # Set up Django settings (ensure it points to your project's settings)
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "your_project_name.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "warehouse.settings")
 django.setup()
 
-from inventory.models import Product  # Replace 'inventory' with your app's name if different
+from products.models import Product  # Replace 'inventory' with your app's name if different
 
 # Define sample medical product names and descriptions
 product_data = [
