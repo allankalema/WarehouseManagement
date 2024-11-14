@@ -1,0 +1,74 @@
+{% extends 'user/base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">Product List</h1>
+    <div class="row">
+        {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card 
+                        {% if product.boxes_left == 0 %}
+                            bg-danger text-white
+                        {% elif product.boxes_left <= 5 %}
+                            bg-warning text-dark
+                        {% else %}
+                            bg-success text-white
+                        {% endif %} ">
+                <div class="card-body p-4">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.description }}</p>
+                    <p><strong>Manufactured Date:</strong> {{ product.manufactured_date }}</p>
+                    <p><strong>Expiry Date:</strong> {{ product.expiry_date }}</p>
+                    <p><strong>Boxes Available:</strong> {{ product.boxes_left }}</p>
+                    <p><strong>Pieces per Box:</strong> {{ product.pieces_per_box }}</p>
+                </div>
+
+                <div class="card-footer d-flex justify-content-between align-items-end">
+                    <!-- Add to Cart button visible only to shop users -->
+                    {% if user.shop %}
+                    <a href="{% url 'orders:add_to_cart' product.id %}" class="btn 
+                        {% if product.boxes_left == 0 %}
+                            btn-outline-success disabled
+                        {% else %}
+                            btn-primary
+                        {% endif %}">
+                        {% if product.boxes_left == 0 %}
+                            Out of Stock
+                        {% else %}
+                            Add to Cart
+                        {% endif %}
+                    </a>
+                    {% endif %}
+
+                    <!-- Status message positioned at the bottom-right of the card -->
+                    <span class="badge 
+                        {% if product.boxes_left == 0 %}
+                            bg-dark text-light
+                        {% elif product.boxes_left <= 5 %}
+                            bg-warning text-dark
+                        {% else %}
+                            bg-success text-light
+                        {% endif %}">
+                        {% if product.boxes_left == 0 %}
+                            Out of Stock
+                        {% elif product.boxes_left <= 5 %}
+                            Almost Out of Stock
+                        {% else %}
+                            In Stock
+                        {% endif %}
+                    </span>
+
+                    <!-- Update button, visible only to store managers -->
+                    {% if user.store_manager %}
+                    <a href="{% url 'products:product_update' product.pk %}" class="btn btn-primary">
+                        Update
+                    </a>
+                    <a href="{% url 'products:product_delete' product.pk %}" class="btn btn-danger">Delete</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

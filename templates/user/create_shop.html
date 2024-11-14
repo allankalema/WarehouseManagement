@@ -1,0 +1,31 @@
+{% extends "user/base.html" %}
+
+{% block content %}
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="card shadow-lg p-4 w-50">
+        <h2 class="text-center text-primary mb-4">Create Shop</h2>
+        <form method="POST" novalidate>
+            {% csrf_token %}
+            <!-- Email field -->
+            <div class="form-group mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
+            </div>
+            <!-- First Name field -->
+            <div class="form-group mb-3">
+                <label for="first_name" class="form-label">First Name:</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Enter first name" required>
+            </div>
+            <!-- Last Name field -->
+            <div class="form-group mb-4">
+                <label for="last_name" class="form-label">Last Name:</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Enter last name" required>
+            </div>
+            <!-- Submit button -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary w-100">Create Shop</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

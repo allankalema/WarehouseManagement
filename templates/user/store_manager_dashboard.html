@@ -1,0 +1,108 @@
+{% extends 'user/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Store Manager Dashboard</h1>
+<p>Welcome to the Store Manager Dashboard!</p>
+
+<!-- Add Product Button -->
+<a href="{% url 'products:product_create' %}" class="btn btn-primary" style="float: right;">
+    <i class="bi bi-plus-circle-dotted"></i> Add Product
+</a>
+
+<div class="container mt-4">
+    <div class="row">
+
+        <!-- Order Statistics Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Order Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Orders in the last week: {{ weekly_orders }}</li>
+                        <li class="list-group-item">Orders in the last month: {{ monthly_orders }}</li>
+                        <li class="list-group-item">Orders in the last year: {{ yearly_orders }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Stock Levels Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5>Inventory Stock Levels</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Out of Stock (less than 3 boxes)</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for product in out_of_stock_products %}
+                            <li class="list-group-item">{{ product.name }} ({{ product.boxes_left }} boxes left)</li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">No products are out of stock.</li>
+                        {% endfor %}
+                    </ul>
+                    <h6 class="mt-3">In Stock (10 or more boxes)</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for product in in_stock_products %}
+                            <li class="list-group-item">{{ product.name }} ({{ product.boxes_left }} boxes left)</li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">No products are sufficiently in stock.</li>
+                        {% endfor %}
+                    </ul>
+                    <h6 class="mt-3">About to Expire (within 6 months)</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for product in expiring_products %}
+                            <li class="list-group-item">
+                                <span class="{% if product.expiry_date < current_date|add:"30 days" %}text-danger{% endif %}">
+                                    {{ product.name }} - Expires on {{ product.expiry_date }}
+                                </span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">No products are close to expiry.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Status Summary Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5>Order Status Summary</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Pending Orders: {{ pending_orders }}</li>
+                        <li class="list-group-item">Approved Orders: {{ approved_orders }}</li>
+                        <li class="list-group-item">Rejected Orders: {{ rejected_orders }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Shops Managed by Store Manager Card -->
+    <div class="card mt-4">
+        <div class="card-header bg-dark text-white">
+            <h5>Shops Managed by You</h5>
+        </div>
+        <div class="card-body">
+            <p>Total Shops Managed: {{ managed_shops }}</p>
+            <h6>Orders from Managed Shops</h6>
+            <ul class="list-group list-group-flush">
+                {% for order in shop_orders %}
+                    <li class="list-group-item">Order #{{ order.id }} - {{ order.user.username }} - {{ order.status }}</li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No orders from managed shops.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

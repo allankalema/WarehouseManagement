@@ -1,0 +1,53 @@
+{% extends 'user/base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="text-center mb-4">Your Cart</h1>
+    <form method="POST" action="{% url 'orders:make_order' %}">
+        {% csrf_token %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Number of Boxes</th>
+                    <th>Number of Pieces</th>
+                    <th>Remove</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in products_in_cart %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>
+                        <input type="number" name="boxes_{{ item.product.id }}" 
+                               value="{{ item.boxes }}" min="1" max="{{ item.product.boxes_left }}" 
+                               onchange="updatePieces({{ item.product.id }}, {{ item.product.pieces_per_box }})">
+                    </td>
+                    <td><span id="pieces_{{ item.product.id }}">{{ item.pieces }}</span></td>
+                    <td>
+                        <a href="{% url 'orders:remove_from_cart' item.product.id %}" class="btn btn-danger">Remove</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if products_in_cart %}
+            <button type="submit" class="btn btn-primary">Make Order</button>
+        {% else %}
+            <p>Your cart is empty.</p>
+        {% endif %}
+    </form>
+</div>
+
+<script>
+    // Function to update the number of pieces based on boxes
+    function updatePieces(productId, piecesPerBox) {
+        var boxInput = document.querySelector(`input[name="boxes_${productId}"]`);
+        var numberOfBoxes = boxInput.value;
+        var numberOfPieces = numberOfBoxes * piecesPerBox;
+        document.getElementById(`pieces_${productId}`).textContent = numberOfPieces;
+    }
+</script>
+
+{% endblock %}

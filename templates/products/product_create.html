@@ -1,0 +1,33 @@
+<!-- templates/products/product_create.html -->
+{% extends 'user/base.html' %}
+
+{% block content %}
+<div class="container my-5 d-flex justify-content-center">
+    <div class="card shadow-lg p-4 w-50">
+        <h1 class="text-center text-primary mb-4">Create a New Product</h1>
+        <form method="POST" novalidate>
+            {% csrf_token %}
+
+            <!-- Loop through each field in the form to style individually -->
+            {% for field in form %}
+                <div class="form-group mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger small">
+                            {% for error in field.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <!-- Submit button -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary w-100">Create Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+<!-- products/templates/products/notifications_page.html -->
+{% extends "user/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Notifications</h2>
+    <div class="notifications-list">
+        {% for notification in notifications %}
+            <div class="notification-item p-3 mb-3 d-flex align-items-start">
+                <!-- Notification Icon -->
+                <div class="icon-container mr-3">
+                    <i class="fas fa-bell fa-lg text-primary"></i>
+                </div>
+                <!-- Notification Details -->
+                <div class="notification-content">
+                    <p class="mb-1 font-weight-bold">{{ notification.message }}</p>
+                    <small class="text-muted">{{ notification.created_at|date:"M d, Y H:i" }}</small>
+                </div>
+            </div>
+        {% empty %}
+            <div class="notification-item p-3 mb-3 text-center">
+                <p class="text-muted">No notifications available.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .notifications-list {
+        max-width: 600px;
+        margin: auto;
+    }
+    .notification-item {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        display: flex;
+        align-items: center;
+    }
+    .icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #e9ecef;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        color: #007bff;
+    }
+    .notification-content {
+        flex-grow: 1;
+    }
+    .notification-content p {
+        margin: 0;
+    }
+</style>
+{% endblock %}

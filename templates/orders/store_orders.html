@@ -1,0 +1,46 @@
+{% extends "user/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Orders for Store: {{ request.user.store_name }}</h2>
+    
+    {% if orders_by_user %}
+        {% for user, orders in orders_by_user.items %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4>{{ user.username }}'s Orders</h4>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for order in orders %}
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Order ID:</strong> {{ order.id }}<br>
+                                    <strong>Status:</strong> {{ order.status|title }}<br>
+                                    <strong>Date:</strong> {{ order.date|date:"M d, Y H:i" }}
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>Items:</h5>
+                                    <ul>
+                                        {% for item in order.items.all %}
+                                            <li>{{ item.product.name }} - {{ item.boxes }} boxes, {{ item.pieces }} pieces</li>
+                                        {% endfor %}
+                                    </ul>
+                                    <form method="POST" class="mt-2">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="order_id" value="{{ order.id }}">
+                                        <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+                                        <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No orders found for this store.</p>
+    {% endif %}
+</div>
+{% endblock %}
